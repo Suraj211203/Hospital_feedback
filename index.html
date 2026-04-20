@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -648,4 +649,656 @@
   }
 </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospital Patient Feedback</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f4f9;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+      color: #202124;
+    }
+
+    .form-wrapper { max-width: 640px; margin: 0 auto; }
+
+    .form-header {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
+      margin-bottom: 12px;
+      border-top: 10px solid #7c4dff;
+      padding: 24px;
+    }
+
+    .form-title { font-size: 32px; font-weight: 400; color: #202124; margin-bottom: 8px; }
+    .form-subtitle { font-size: 14px; color: #5f6368; line-height: 1.5; }
+    .required-note { font-size: 13px; color: #5f6368; margin-top: 12px; }
+    .required-note span { color: #d93025; }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
+      margin-bottom: 12px;
+    }
+
+    .card:focus-within { border-left: 3px solid #7c4dff; }
+
+    .question-label { font-size: 16px; color: #202124; margin-bottom: 12px; display: block; }
+    .question-label .req { color: #d93025; margin-left: 3px; }
+
+    .gf-input {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #dadce0;
+      padding: 8px 0 6px;
+      font-size: 14px;
+      font-family: 'Roboto', sans-serif;
+      color: #202124;
+      background: transparent;
+      outline: none;
+    }
+    .gf-input:focus { border-bottom: 2px solid #7c4dff; }
+
+    .gf-textarea {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #dadce0;
+      padding: 8px 0 6px;
+      font-size: 14px;
+      font-family: 'Roboto', sans-serif;
+      color: #202124;
+      background: transparent;
+      outline: none;
+      resize: none;
+      min-height: 80px;
+    }
+    .gf-textarea:focus { border-bottom: 2px solid #7c4dff; }
+
+    .rating-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #5f6368;
+      margin-bottom: 8px;
+    }
+
+    .rating-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rating-option { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+    .rating-option input[type="radio"] { display: none; }
+
+    .rating-option .radio-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #dadce0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #5f6368;
+      transition: all .2s;
+    }
+
+    .rating-option input[type="radio"]:checked + .radio-btn {
+      background: #7c4dff;
+      border-color: #7c4dff;
+      color: #fff;
+    }
+    .rating-option:hover .radio-btn { border-color: #7c4dff; color: #7c4dff; }
+
+    .voice-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin: 16px 0 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-record {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 4px;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-start { background: #7c4dff; color: #fff; }
+    .btn-start:hover { background: #651fff; }
+    .btn-stop { background: #ea4335; color: #fff; display: none; }
+    .btn-stop:hover { background: #c5221f; }
+
+    .recording-indicator {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #ea4335;
+      font-weight: 500;
+    }
+    .recording-indicator.active { display: flex; }
+
+    .pulse-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #ea4335;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(.8); }
+    }
+
+    .audio-player-wrap { display: none; margin-top: 12px; }
+    .audio-player-wrap audio { width: 100%; border-radius: 4px; }
+
+    .upload-progress { display: none; margin-top: 10px; }
+    .progress-bar-wrap { height: 4px; background: #e8eaed; border-radius: 2px; overflow: hidden; }
+    .progress-bar { height: 100%; background: #7c4dff; width: 0%; transition: width .3s; border-radius: 2px; }
+    .progress-label { font-size: 12px; color: #5f6368; margin-top: 6px; }
+
+    .processing-msg {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #5f6368;
+    }
+    .processing-msg.active { display: flex; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid #dadce0;
+      border-top-color: #7c4dff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .transcript-box {
+      display: none;
+      margin-top: 16px;
+      border-radius: 8px;
+      border: 1px solid #e8eaed;
+      overflow: hidden;
+    }
+    .transcript-segment { padding: 14px 16px; }
+    .transcript-segment:first-child { border-bottom: 1px solid #e8eaed; }
+    .transcript-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: #5f6368;
+      margin-bottom: 6px;
+    }
+    .translation-label { color: #137333 !important; }
+    .transcript-text { font-size: 14px; line-height: 1.6; color: #202124; }
+
+    .done-msg {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #e6f4ea;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #137333;
+      font-weight: 500;
+    }
+
+    .error-msg { font-size: 12px; color: #d93025; margin-top: 4px; display: none; }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+    }
+
+    .btn-submit {
+      padding: 12px 28px;
+      background: #7c4dff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-submit:hover { background: #651fff; }
+    .btn-submit:disabled { background: #dadce0; color: #9aa0a6; cursor: not-allowed; }
+
+    .btn-clear {
+      font-size: 14px;
+      color: #7c4dff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .btn-clear:hover { text-decoration: underline; }
+
+    .success-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 40px 32px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: #e6f4ea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+    }
+    .success-title { font-size: 24px; color: #202124; margin-bottom: 8px; }
+    .success-sub { font-size: 14px; color: #5f6368; line-height: 1.8; }
+
+    @media (max-width: 480px) {
+      body { padding: 16px 12px 48px; }
+      .form-title { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-wrapper" id="formWrapper">
+
+  <!-- Header -->
+  <div class="form-header">
+    <h1 class="form-title">🏥 Patient Feedback Form</h1>
+    <p class="form-subtitle">We value your feedback. Please share your experience with us.</p>
+    <p class="required-note"><span>*</span> Indicates required question</p>
+  </div>
+
+  <!-- Patient ID -->
+  <div class="card">
+    <label class="question-label" for="patientId">Patient ID <span class="req">*</span></label>
+    <input class="gf-input" type="text" id="patientId" placeholder="e.g. PT-20241001" required/>
+    <div class="error-msg" id="errPatientId">This is a required question.</div>
+  </div>
+
+  <!-- Name -->
+  <div class="card">
+    <label class="question-label" for="patientName">Full Name <span class="req">*</span></label>
+    <input class="gf-input" type="text" id="patientName" placeholder="Your full name" required/>
+    <div class="error-msg" id="errName">This is a required question.</div>
+  </div>
+
+  <!-- Q1 Rating -->
+  <div class="card">
+    <label class="question-label">Q1. Overall experience rating? <span class="req">*</span></label>
+    <div class="rating-labels"><span>Poor</span><span>Excellent</span></div>
+    <div class="rating-options">
+      <label class="rating-option"><input type="radio" name="q1" value="1"/><span class="radio-btn">1</span></label>
+      <label class="rating-option"><input type="radio" name="q1" value="2"/><span class="radio-btn">2</span></label>
+      <label class="rating-option"><input type="radio" name="q1" value="3"/><span class="radio-btn">3</span></label>
+      <label class="rating-option"><input type="radio" name="q1" value="4"/><span class="radio-btn">4</span></label>
+      <label class="rating-option"><input type="radio" name="q1" value="5"/><span class="radio-btn">5</span></label>
+    </div>
+    <div class="error-msg" id="errQ1">Please select an option.</div>
+  </div>
+
+  <!-- Q2 Rating -->
+  <div class="card">
+    <label class="question-label">Q2. Likelihood to recommend us? <span class="req">*</span></label>
+    <div class="rating-labels"><span>Not likely</span><span>Very likely</span></div>
+    <div class="rating-options">
+      <label class="rating-option"><input type="radio" name="q2" value="1"/><span class="radio-btn">1</span></label>
+      <label class="rating-option"><input type="radio" name="q2" value="2"/><span class="radio-btn">2</span></label>
+      <label class="rating-option"><input type="radio" name="q2" value="3"/><span class="radio-btn">3</span></label>
+      <label class="rating-option"><input type="radio" name="q2" value="4"/><span class="radio-btn">4</span></label>
+      <label class="rating-option"><input type="radio" name="q2" value="5"/><span class="radio-btn">5</span></label>
+    </div>
+    <div class="error-msg" id="errQ2">Please select an option.</div>
+  </div>
+
+  <!-- Q3 Improvement -->
+  <div class="card">
+    <label class="question-label" for="improvement">Q3. What could we improve?</label>
+    <textarea class="gf-textarea" id="improvement" placeholder="Share your suggestions…" rows="4"></textarea>
+  </div>
+
+  <!-- Q4 Voice -->
+  <div class="card">
+    <label class="question-label">Q4. Voice Feedback</label>
+    <p style="font-size:13px;color:#5f6368;margin-bottom:12px;">
+      Click mic to record. And Click Stop When End With Recording .
+    </p>
+
+    <div class="voice-controls">
+      <button class="btn-record btn-start" id="btnStart" type="button">🎤 Start Recording</button>
+      <button class="btn-record btn-stop"  id="btnStop"  type="button">⏹ Stop Recording</button>
+      <div class="recording-indicator" id="recordingIndicator">
+        <div class="pulse-dot"></div><span>Recording…</span>
+      </div>
+    </div>
+
+    <div class="audio-player-wrap" id="audioPlayerWrap">
+      <audio id="audioPlayer" controls></audio>
+    </div>
+
+    <div class="upload-progress" id="uploadProgress">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <p class="progress-label" id="progressLabel">Uploading…</p>
+    </div>
+
+    <div class="processing-msg" id="processingMsg">
+      <div class="spinner"></div>
+      <span id="processingText">Processing audio…</span>
+    </div>
+
+   <div class="transcript-box" id="transcriptBox" style="display:none;">
+      <div class="transcript-segment">
+        <div class="transcript-label">Original Transcription</div>
+        <div class="transcript-text" id="originalText"></div>
+      </div>
+      <div class="transcript-segment">
+        <div class="transcript-label translation-label">UK English Translation</div>
+        <div class="transcript-text" id="translatedText"></div>
+      </div>
+    </div>
+
+    <div class="done-msg" id="doneMsg">
+      ✅ Voice processed!
+    </div>
+
+    <div class="error-msg" id="errVoice" style="display:none;"></div>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-submit" id="btnSubmit" type="button">Submit</button>
+    <button class="btn-clear"  type="button" onclick="clearForm()">Clear form</button>
+  </div>
+
+</div>
+
+<!-- Success Screen -->
+<div class="form-wrapper" id="successWrapper" style="display:none;">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <h2 class="success-title">Response Submitted!</h2>
+    <p class="success-sub">
+      Thank you, <strong id="successName"></strong>!<br/>
+      Your feedback has been recorded successfully.<br/>
+      
+    </p>
+    <button class="btn-record btn-start" style="margin-top:24px;" onclick="resetAll()">
+      Submit another response
+    </button>
+  </div>
+</div>
+
+<script>
+  const BACKEND = 'http://localhost:8000';
+
+  let mediaRecorder    = null;
+  let audioChunks      = [];
+  let audioBlob        = null;
+  let audioFilename    = null;
+  let originalTranscript = '';
+  let ukTranslation      = '';
+
+  // ── Start Recording ────────────────────────────────────────────────────────
+  document.getElementById('btnStart').addEventListener('click', async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunks  = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = handleStop;
+      mediaRecorder.start();
+
+      document.getElementById('btnStart').style.display           = 'none';
+      document.getElementById('btnStop').style.display            = 'inline-flex';
+      document.getElementById('recordingIndicator').classList.add('active');
+      document.getElementById('transcriptBox').style.display      = 'none';
+      document.getElementById('audioPlayerWrap').style.display    = 'none';
+      document.getElementById('uploadProgress').style.display     = 'none';
+      document.getElementById('doneMsg').style.display            = 'none';
+      showVoiceError('');
+    } catch (err) {
+      showVoiceError('Microphone access denied. Please allow mic permission.');
+    }
+  });
+
+  // ── Stop Recording ─────────────────────────────────────────────────────────
+  document.getElementById('btnStop').addEventListener('click', () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    }
+    document.getElementById('btnStop').style.display            = 'none';
+    document.getElementById('recordingIndicator').classList.remove('active');
+    document.getElementById('btnStart').style.display           = 'inline-flex';
+  });
+
+  // ── After Recording Stops ──────────────────────────────────────────────────
+  async function handleStop() {
+    audioBlob        = new Blob(audioChunks, { type: 'audio/webm' });
+    const url        = URL.createObjectURL(audioBlob);
+    document.getElementById('audioPlayer').src              = url;
+    document.getElementById('audioPlayerWrap').style.display = 'block';
+    await uploadAudio(audioBlob);
+  }
+
+  // ── Upload to Backend ──────────────────────────────────────────────────────
+  async function uploadAudio(blob) {
+    const formData = new FormData();
+    audioFilename  = `recording_${Date.now()}.webm`;
+    formData.append('file', blob, audioFilename);
+
+    // Reset UI
+    document.getElementById('transcriptBox').style.display  = 'none';
+    document.getElementById('doneMsg').style.display        = 'none';
+    showVoiceError('');
+
+    // Progress bar start
+    const progressWrap  = document.getElementById('uploadProgress');
+    const progressBar   = document.getElementById('progressBar');
+    const progressLabel = document.getElementById('progressLabel');
+
+    progressWrap.style.display        = 'block';
+    progressBar.style.width           = '0%';
+    progressBar.style.background      = '#7c4dff';
+    progressLabel.textContent         = 'Uploading audio…';
+
+    try {
+      // Fake progress
+      let prog = 0;
+      const interval = setInterval(() => {
+        prog = Math.min(prog + 15, 90);
+        progressBar.style.width = prog + '%';
+      }, 200);
+
+      // API call
+      const res = await fetch(`${BACKEND}/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      clearInterval(interval);
+      progressBar.style.width   = '95%';
+      progressLabel.textContent = 'Transcribing & translating…';
+
+      // Show processing spinner
+      showProcessing('Transcribing & translating…');
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `Server error: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Hide progress & spinner
+      progressBar.style.width   = '100%';
+      progressBar.style.background = '#34a853';
+      progressLabel.textContent = '✅ Upload complete!';
+      hideProcessing();
+
+      setTimeout(() => {
+        progressWrap.style.display = 'none';
+      }, 1500);
+
+      // Save data
+      originalTranscript = data.original_text || '';
+      ukTranslation      = data.uk_translation || '';
+      audioFilename      = data.filename       || audioFilename;
+
+      // Show transcript
+      document.getElementById('originalText').textContent   = originalTranscript;
+      document.getElementById('translatedText').textContent = ukTranslation;
+      document.getElementById('transcriptBox').style.display = 'none';
+
+      // Show done message
+      document.getElementById('doneMsg').style.display = 'block';
+
+    } catch (err) {
+      progressWrap.style.display = 'none';
+      hideProcessing();
+      showVoiceError('Failed to process audio: ' + err.message);
+    }
+  }
+
+  // ── Submit Form ────────────────────────────────────────────────────────────
+  document.getElementById('btnSubmit').addEventListener('click', async () => {
+    if (!validateForm()) return;
+
+    const payload = {
+      patient_id:        document.getElementById('patientId').value.trim(),
+      name:              document.getElementById('patientName').value.trim(),
+      q1_rating:         document.querySelector('input[name="q1"]:checked')?.value || '',
+      q2_recommendation: document.querySelector('input[name="q2"]:checked')?.value || '',
+      q3_improvement:    document.getElementById('improvement').value.trim(),
+      original_text:     originalTranscript,
+      uk_translation:    ukTranslation,
+      audio_filename:    audioFilename || ''
+    };
+
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled    = true;
+    btn.textContent = 'Submitting…';
+
+    try {
+      const res = await fetch(`${BACKEND}/submit`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `Server error: ${res.status}`);
+      }
+
+      // Success
+      document.getElementById('successName').textContent      = payload.name;
+      document.getElementById('formWrapper').style.display    = 'none';
+      document.getElementById('successWrapper').style.display = 'block';
+      window.scrollTo(0, 0);
+
+    } catch (err) {
+      btn.disabled    = false;
+      btn.textContent = 'Submit';
+      alert('Submission failed: ' + err.message);
+    }
+  });
+
+  // ── Validate ───────────────────────────────────────────────────────────────
+  function validateForm() {
+    let valid = true;
+
+    const pid    = document.getElementById('patientId').value.trim();
+    const errPid = document.getElementById('errPatientId');
+    if (!pid) { errPid.style.display = 'block'; valid = false; }
+    else         errPid.style.display = 'none';
+
+    const name    = document.getElementById('patientName').value.trim();
+    const errName = document.getElementById('errName');
+    if (!name) { errName.style.display = 'block'; valid = false; }
+    else          errName.style.display = 'none';
+
+    const q1    = document.querySelector('input[name="q1"]:checked');
+    const errQ1 = document.getElementById('errQ1');
+    if (!q1) { errQ1.style.display = 'block'; valid = false; }
+    else        errQ1.style.display = 'none';
+
+    const q2    = document.querySelector('input[name="q2"]:checked');
+    const errQ2 = document.getElementById('errQ2');
+    if (!q2) { errQ2.style.display = 'block'; valid = false; }
+    else        errQ2.style.display = 'none';
+
+    return valid;
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function showProcessing(msg) {
+    document.getElementById('processingText').textContent = msg;
+    document.getElementById('processingMsg').classList.add('active');
+  }
+
+  function hideProcessing() {
+    document.getElementById('processingMsg').classList.remove('active');
+  }
+
+  function showVoiceError(msg) {
+    const el        = document.getElementById('errVoice');
+    el.textContent  = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  // ── Clear Form ─────────────────────────────────────────────────────────────
+  function clearForm() {
+    document.getElementById('patientId').value    = '';
+    document.getElementById('patientName').value  = '';
+    document.getElementById('improvement').value  = '';
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    audioBlob = null; audioFilename = null;
+    originalTranscript = ''; ukTranslation = '';
+    document.getElementById('transcriptBox').style.display   = 'none';
+    document.getElementById('audioPlayerWrap').style.display = 'none';
+    document.getElementById('uploadProgress').style.display  = 'none';
+    document.getElementById('doneMsg').style.display         = 'none';
+    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+  }
+
+  // ── Reset All ──────────────────────────────────────────────────────────────
+  function resetAll() {
+    clearForm();
+    document.getElementById('formWrapper').style.display    = 'block';
+    document.getElementById('successWrapper').style.display = 'none';
+    document.getElementById('btnSubmit').disabled           = false;
+    document.getElementById('btnSubmit').textContent        = 'Submit';
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+>>>>>>> 511a8459875840b6491069865407b224bce7b93f
 </html>
