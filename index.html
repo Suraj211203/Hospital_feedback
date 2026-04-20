@@ -1,80 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Hospital Feedback</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Hospital Feedback</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #f4f6f8;
-      padding: 20px;
-    }
+<style>
+body {
+  font-family: Arial;
+  background: #eef1f5;
+  padding: 20px;
+}
 
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-    }
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
 
-    input, textarea, button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-    }
+h2 { margin-bottom: 10px; }
 
-    button {
-      background: #6c5ce7;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}
 
-    .success {
-      color: green;
-      margin-top: 10px;
-    }
-  </style>
+.rating button {
+  margin: 5px;
+  padding: 10px 15px;
+  border-radius: 50%;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+}
+
+.rating button.active {
+  background: #6c5ce7;
+  color: white;
+}
+
+.btn {
+  background: linear-gradient(45deg,#6c5ce7,#5a4cd1);
+  color: white;
+  padding: 12px;
+  border: none;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.success { color: green; }
+.error { color: red; }
+</style>
 </head>
+
 <body>
 
-<div class="container">
-  <h2>Hospital Feedback Form</h2>
+<div class="card">
+<h2>Hospital Feedback Form</h2>
 
-  <input id="patient_id" placeholder="Patient ID">
-  <input id="name" placeholder="Name">
+<input id="patient_id" placeholder="Patient ID">
+<input id="name" placeholder="Name">
 
-  <input id="q1" placeholder="Rating (1-5)">
-  <input id="q2" placeholder="Recommend? Yes/No">
-  <textarea id="q3" placeholder="Suggestions"></textarea>
-
-  <h3>Voice Feedback</h3>
-  <button onclick="startRecording()">Start Recording</button>
-  <button onclick="stopRecording()">Stop Recording</button>
-
-  <p id="status"></p>
-
-  <button onclick="submitForm()">Submit</button>
-
-  <p class="success" id="msg"></p>
+<h3>Q1. Rating</h3>
+<div class="rating" id="rating">
+  <button onclick="setRating(1)">1</button>
+  <button onclick="setRating(2)">2</button>
+  <button onclick="setRating(3)">3</button>
+  <button onclick="setRating(4)">4</button>
+  <button onclick="setRating(5)">5</button>
 </div>
 
-<script>
-const BACKEND = "https://hospitalfeedback-production.up.railway.app";// 🔥 yaha apna link daalo
+<h3>Q2. Recommend?</h3>
+<input id="q2" placeholder="Yes / No">
 
+<h3>Q3. Suggestions</h3>
+<textarea id="q3"></textarea>
+</div>
+
+<div class="card">
+<h3>Voice Feedback</h3>
+
+<button class="btn" onclick="startRecording()">🎤 Start Recording</button>
+<button class="btn" onclick="stopRecording()">Stop Recording</button>
+
+<p id="status"></p>
+<p id="translation"></p>
+</div>
+
+<button class="btn" onclick="submitForm()">Submit</button>
+<p class="success" id="msg"></p>
+<p class="error" id="err"></p>
+
+<script>
+const BACKEND = "https://hospitalfeedback-production.up.railway.app";
+
+let rating = "";
 let mediaRecorder;
 let audioBlob;
 let uploadedFileName = "";
 let originalText = "";
 let translatedText = "";
 
+function setRating(val) {
+  rating = val;
+  document.querySelectorAll(".rating button").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+}
+
 async function startRecording() {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   mediaRecorder = new MediaRecorder(stream);
-
   let chunks = [];
 
   mediaRecorder.ondataavailable = e => chunks.push(e.data);
@@ -87,19 +125,24 @@ async function startRecording() {
     const formData = new FormData();
     formData.append("file", audioBlob, "recording.webm");
 
-    const res = await fetch(`${BACKEND}/upload`, {
-      method: "POST",
-      body: formData
-    });
+    try {
+      const res = await fetch(`${BACKEND}/upload`, {
+        method: "POST",
+        body: formData
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    uploadedFileName = data.filename;
-    originalText = data.original_text;
-    translatedText = data.uk_translation;
+      uploadedFileName = data.filename;
+      originalText = data.original_text;
+      translatedText = data.uk_translation;
 
-    document.getElementById("status").innerText =
-      "Translated: " + translatedText;
+      document.getElementById("translation").innerText = translatedText;
+      document.getElementById("status").innerText = "Done ✅";
+
+    } catch (e) {
+      document.getElementById("err").innerText = "Upload failed ❌";
+    }
   };
 
   mediaRecorder.start();
@@ -110,10 +153,12 @@ function stopRecording() {
 }
 
 async function submitForm() {
+  document.getElementById("err").innerText = "";
+
   const payload = {
     patient_id: document.getElementById("patient_id").value,
     name: document.getElementById("name").value,
-    q1_rating: document.getElementById("q1").value,
+    q1_rating: rating,
     q2_recommendation: document.getElementById("q2").value,
     q3_improvement: document.getElementById("q3").value,
     original_text: originalText,
@@ -121,16 +166,21 @@ async function submitForm() {
     audio_filename: uploadedFileName
   };
 
-  const res = await fetch(`${BACKEND}/submit`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  try {
+    const res = await fetch(`${BACKEND}/submit`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.status === "success") {
-    document.getElementById("msg").innerText = "✅ Submitted successfully!";
+    if (data.status === "success") {
+      document.getElementById("msg").innerText = "Submitted successfully ✅";
+    }
+
+  } catch (e) {
+    document.getElementById("err").innerText = "Submit failed ❌";
   }
 }
 </script>
