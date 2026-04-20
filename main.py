@@ -1,3 +1,4 @@
+import json  # 🔥 top में add करना
 import os
 from datetime import datetime
 from pathlib import Path
@@ -33,12 +34,24 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 
+
+
 def get_sheet():
     try:
-        creds = Credentials.from_service_account_file(GOOGLE_CREDS_FILE, scopes=SCOPES)
-        return gspread.authorize(creds).open("Hospital Patient Feedback").sheet1
+        import json
+        creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS_JSON"))
+
+        creds = Credentials.from_service_account_info(
+            creds_dict,
+            scopes=SCOPES
+        )
+
+        sheet = gspread.authorize(creds).open("Hospital Patient Feedback").sheet1
+        print("✅ Sheet connected successfully")
+        return sheet
+
     except Exception as e:
-        print("Sheet error:", e)
+        print("❌ Sheet error FULL:", str(e))
         return None
 
 def ensure_header(sheet):
