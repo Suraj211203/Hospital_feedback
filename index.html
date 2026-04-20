@@ -1,181 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Hospital Feedback</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospital Patient Feedback</title>
 
-<style>
-body {
-  font-family: Arial;
-  background: #eef1f5;
-  padding: 20px;
-}
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
 
-.container {
-  max-width: 700px;
-  margin: auto;
-}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f4f9;
+      padding: 32px 16px;
+      color: #202124;
+    }
 
-h2 { margin-bottom: 15px; }
+    .form-wrapper { max-width: 640px; margin: 0 auto; }
 
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
+    .form-header {
+      background: #fff;
+      border-radius: 8px;
+      border-top: 10px solid #7c4dff;
+      padding: 24px;
+      margin-bottom: 12px;
+    }
 
-.rating {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
+    .form-title { font-size: 28px; margin-bottom: 8px; }
+    .form-subtitle { font-size: 14px; color: #5f6368; }
 
-.rating button {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: none;
-  background: #ddd;
-  cursor: pointer;
-}
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
 
-.rating button.active {
-  background: #6c5ce7;
-  color: white;
-}
+    .question-label { margin-bottom: 10px; display: block; }
 
-.btn {
-  background: linear-gradient(45deg,#6c5ce7,#5a4cd1);
-  color: white;
-  padding: 12px;
-  border: none;
-  width: 100%;
-  margin-top: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
+    input, textarea {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #ccc;
+      padding: 8px 0;
+      outline: none;
+    }
 
-.audio-box {
-  margin-top: 10px;
-}
+    .rating-options {
+      display: flex;
+      gap: 10px;
+    }
 
-.success { color: green; }
-.error { color: red; }
-</style>
+    .radio-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    input[type="radio"] { display: none; }
+
+    input[type="radio"]:checked + .radio-btn {
+      background: #7c4dff;
+      color: #fff;
+      border-color: #7c4dff;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #7c4dff;
+      color: white;
+      border: none;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .audio-player-wrap { margin-top: 10px; }
+    .transcript-box { margin-top: 15px; }
+
+    .error-msg { color: red; font-size: 12px; }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="form-wrapper">
 
-<div class="card">
-<h2>Hospital Feedback Form</h2>
+  <div class="form-header">
+    <h1 class="form-title">🏥 Patient Feedback Form</h1>
+    <p class="form-subtitle">We value your feedback</p>
+  </div>
 
-<input id="patient_id" placeholder="Patient ID">
-<input id="name" placeholder="Name">
+  <div class="card">
+    <input id="patientId" placeholder="Patient ID">
+  </div>
 
-<h3>Q1. Rating</h3>
-<div class="rating" id="rating">
-  <button onclick="setRating(event,1)">1</button>
-  <button onclick="setRating(event,2)">2</button>
-  <button onclick="setRating(event,3)">3</button>
-  <button onclick="setRating(event,4)">4</button>
-  <button onclick="setRating(event,5)">5</button>
-</div>
+  <div class="card">
+    <input id="patientName" placeholder="Full Name">
+  </div>
 
-<h3>Q2. Likelihood to recommend us?</h3>
-<input id="q2" placeholder="Yes / No">
+  <div class="card">
+    <p>Q1 Rating</p>
+    <div class="rating-options">
+      <label><input type="radio" name="q1" value="1"><span class="radio-btn">1</span></label>
+      <label><input type="radio" name="q1" value="2"><span class="radio-btn">2</span></label>
+      <label><input type="radio" name="q1" value="3"><span class="radio-btn">3</span></label>
+      <label><input type="radio" name="q1" value="4"><span class="radio-btn">4</span></label>
+      <label><input type="radio" name="q1" value="5"><span class="radio-btn">5</span></label>
+    </div>
+  </div>
 
-<h3>Q3. What could we improve?</h3>
-<textarea id="q3"></textarea>
+  <div class="card">
+    <p>Q2 Recommend?</p>
+    <div class="rating-options">
+      <label><input type="radio" name="q2" value="1"><span class="radio-btn">1</span></label>
+      <label><input type="radio" name="q2" value="2"><span class="radio-btn">2</span></label>
+      <label><input type="radio" name="q2" value="3"><span class="radio-btn">3</span></label>
+      <label><input type="radio" name="q2" value="4"><span class="radio-btn">4</span></label>
+      <label><input type="radio" name="q2" value="5"><span class="radio-btn">5</span></label>
+    </div>
+  </div>
 
-</div>
+  <div class="card">
+    <textarea id="improvement" placeholder="Suggestions"></textarea>
+  </div>
 
-<div class="card">
-<h3>Q4. Voice Feedback</h3>
+  <div class="card">
+    <button class="btn" onclick="startRecording()">Start Recording</button>
+    <button class="btn" onclick="stopRecording()">Stop Recording</button>
 
-<button class="btn" onclick="startRecording()">🎤 Start Recording</button>
-<button class="btn" onclick="stopRecording()">Stop Recording</button>
+    <div class="audio-player-wrap">
+      <audio id="audioPlayer" controls></audio>
+    </div>
 
-<div class="audio-box">
-<audio id="audioPlayer" controls></audio>
-</div>
+    <div class="transcript-box">
+      <p><b>Original:</b> <span id="originalText"></span></p>
+      <p><b>Translation:</b> <span id="translatedText"></span></p>
+    </div>
 
-<p><b>Original:</b> <span id="original"></span></p>
-<p><b>Translation:</b> <span id="translation"></span></p>
+    <p class="error-msg" id="errVoice"></p>
+  </div>
 
-<p id="status"></p>
-</div>
-
-<button class="btn" onclick="submitForm()">Submit</button>
-
-<p class="success" id="msg"></p>
-<p class="error" id="err"></p>
+  <button class="btn" onclick="submitForm()">Submit</button>
 
 </div>
 
 <script>
 const BACKEND = "https://hospitalfeedback-production.up.railway.app";
 
-let rating = "";
-let mediaRecorder;
-let audioBlob;
-let uploadedFileName = "";
-let originalText = "";
-let translatedText = "";
-
-function setRating(e,val) {
-  rating = val;
-  document.querySelectorAll(".rating button").forEach(b => b.classList.remove("active"));
-  e.target.classList.add("active");
-}
+let mediaRecorder, audioChunks = [], audioBlob;
+let originalText = "", translatedText = "", filename = "";
 
 async function startRecording() {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   mediaRecorder = new MediaRecorder(stream);
-  let chunks = [];
+  audioChunks = [];
 
-  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+  mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
 
   mediaRecorder.onstop = async () => {
-    audioBlob = new Blob(chunks, { type: 'audio/webm' });
-
+    audioBlob = new Blob(audioChunks);
     document.getElementById("audioPlayer").src = URL.createObjectURL(audioBlob);
-
-    document.getElementById("status").innerText = "Uploading...";
 
     const formData = new FormData();
     formData.append("file", audioBlob, "recording.webm");
 
     try {
-      const res = await fetch(`${BACKEND}/upload`, {
-        method: "POST",
-        body: formData
-      });
-
+      const res = await fetch(`${BACKEND}/upload`, { method: "POST", body: formData });
       const data = await res.json();
 
-      uploadedFileName = data.filename;
       originalText = data.original_text;
       translatedText = data.uk_translation;
+      filename = data.filename;
 
-      document.getElementById("original").innerText = originalText;
-      document.getElementById("translation").innerText = translatedText;
-
-      document.getElementById("status").innerText = "Processed ✅";
+      document.getElementById("originalText").innerText = originalText;
+      document.getElementById("translatedText").innerText = translatedText;
 
     } catch (e) {
-      document.getElementById("err").innerText = "Upload failed ❌";
+      document.getElementById("errVoice").innerText = "Upload failed";
     }
   };
 
@@ -187,35 +194,24 @@ function stopRecording() {
 }
 
 async function submitForm() {
-  document.getElementById("err").innerText = "";
-
   const payload = {
-    patient_id: document.getElementById("patient_id").value,
-    name: document.getElementById("name").value,
-    q1_rating: rating,
-    q2_recommendation: document.getElementById("q2").value,
-    q3_improvement: document.getElementById("q3").value,
+    patient_id: document.getElementById("patientId").value,
+    name: document.getElementById("patientName").value,
+    q1_rating: document.querySelector('input[name="q1"]:checked')?.value,
+    q2_recommendation: document.querySelector('input[name="q2"]:checked')?.value,
+    q3_improvement: document.getElementById("improvement").value,
     original_text: originalText,
     uk_translation: translatedText,
-    audio_filename: uploadedFileName
+    audio_filename: filename
   };
 
-  try {
-    const res = await fetch(`${BACKEND}/submit`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(payload)
-    });
+  await fetch(`${BACKEND}/submit`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
 
-    const data = await res.json();
-
-    if (data.status === "success") {
-      document.getElementById("msg").innerText = "Submitted successfully ✅";
-    }
-
-  } catch (e) {
-    document.getElementById("err").innerText = "Submit failed ❌";
-  }
+  alert("Submitted!");
 }
 </script>
 
