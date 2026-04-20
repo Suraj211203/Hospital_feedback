@@ -12,6 +12,11 @@ body {
   padding: 20px;
 }
 
+.container {
+  max-width: 700px;
+  margin: auto;
+}
+
 .card {
   background: white;
   padding: 20px;
@@ -19,17 +24,25 @@ body {
   margin-bottom: 20px;
 }
 
-h2 { margin-bottom: 10px; }
+h2 { margin-bottom: 15px; }
 
 input, textarea {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.rating {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
 }
 
 .rating button {
-  margin: 5px;
-  padding: 10px 15px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   border: none;
   background: #ddd;
@@ -48,7 +61,12 @@ input, textarea {
   border: none;
   width: 100%;
   margin-top: 10px;
+  border-radius: 8px;
   cursor: pointer;
+}
+
+.audio-box {
+  margin-top: 10px;
 }
 
 .success { color: green; }
@@ -58,6 +76,8 @@ input, textarea {
 
 <body>
 
+<div class="container">
+
 <div class="card">
 <h2>Hospital Feedback Form</h2>
 
@@ -66,33 +86,43 @@ input, textarea {
 
 <h3>Q1. Rating</h3>
 <div class="rating" id="rating">
-  <button onclick="setRating(1)">1</button>
-  <button onclick="setRating(2)">2</button>
-  <button onclick="setRating(3)">3</button>
-  <button onclick="setRating(4)">4</button>
-  <button onclick="setRating(5)">5</button>
+  <button onclick="setRating(event,1)">1</button>
+  <button onclick="setRating(event,2)">2</button>
+  <button onclick="setRating(event,3)">3</button>
+  <button onclick="setRating(event,4)">4</button>
+  <button onclick="setRating(event,5)">5</button>
 </div>
 
-<h3>Q2. Recommend?</h3>
+<h3>Q2. Likelihood to recommend us?</h3>
 <input id="q2" placeholder="Yes / No">
 
-<h3>Q3. Suggestions</h3>
+<h3>Q3. What could we improve?</h3>
 <textarea id="q3"></textarea>
+
 </div>
 
 <div class="card">
-<h3>Voice Feedback</h3>
+<h3>Q4. Voice Feedback</h3>
 
 <button class="btn" onclick="startRecording()">🎤 Start Recording</button>
 <button class="btn" onclick="stopRecording()">Stop Recording</button>
 
+<div class="audio-box">
+<audio id="audioPlayer" controls></audio>
+</div>
+
+<p><b>Original:</b> <span id="original"></span></p>
+<p><b>Translation:</b> <span id="translation"></span></p>
+
 <p id="status"></p>
-<p id="translation"></p>
 </div>
 
 <button class="btn" onclick="submitForm()">Submit</button>
+
 <p class="success" id="msg"></p>
 <p class="error" id="err"></p>
+
+</div>
 
 <script>
 const BACKEND = "https://hospitalfeedback-production.up.railway.app";
@@ -104,10 +134,10 @@ let uploadedFileName = "";
 let originalText = "";
 let translatedText = "";
 
-function setRating(val) {
+function setRating(e,val) {
   rating = val;
   document.querySelectorAll(".rating button").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
+  e.target.classList.add("active");
 }
 
 async function startRecording() {
@@ -119,6 +149,8 @@ async function startRecording() {
 
   mediaRecorder.onstop = async () => {
     audioBlob = new Blob(chunks, { type: 'audio/webm' });
+
+    document.getElementById("audioPlayer").src = URL.createObjectURL(audioBlob);
 
     document.getElementById("status").innerText = "Uploading...";
 
@@ -137,8 +169,10 @@ async function startRecording() {
       originalText = data.original_text;
       translatedText = data.uk_translation;
 
+      document.getElementById("original").innerText = originalText;
       document.getElementById("translation").innerText = translatedText;
-      document.getElementById("status").innerText = "Done ✅";
+
+      document.getElementById("status").innerText = "Processed ✅";
 
     } catch (e) {
       document.getElementById("err").innerText = "Upload failed ❌";
