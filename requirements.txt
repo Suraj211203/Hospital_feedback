@@ -1,18 +1,10 @@
-<<<<<<< HEAD
 fastapi==0.111.0
 uvicorn[standard]==0.29.0
 python-multipart==0.0.9
 groq>=0.9.0
 gspread==6.1.2
 google-auth==2.29.0
+google-api-python-client
 pydantic==2.7.1
-=======
-fastapi==0.111.0
-uvicorn[standard]==0.29.0
-python-multipart==0.0.9
-groq>=0.9.0
-gspread==6.1.2
-google-auth==2.29.0
-pydantic==2.7.1
->>>>>>> 511a8459875840b6491069865407b224bce7b93f
 httpx>=0.27.0
+python-dotenv
