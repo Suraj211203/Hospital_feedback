@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hospital Patient Feedback</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
 
   <style>
@@ -13,7 +12,8 @@
     body {
       font-family: 'Roboto', sans-serif;
       background: #f0f4f9;
-      padding: 32px 16px;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
       color: #202124;
     }
 
@@ -22,41 +22,39 @@
     .form-header {
       background: #fff;
       border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
+      margin-bottom: 12px;
       border-top: 10px solid #7c4dff;
       padding: 24px;
-      margin-bottom: 12px;
     }
 
-    .form-title { font-size: 28px; margin-bottom: 8px; }
+    .form-title { font-size: 32px; margin-bottom: 8px; }
     .form-subtitle { font-size: 14px; color: #5f6368; }
 
     .card {
       background: #fff;
-      padding: 20px;
       border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
       margin-bottom: 12px;
     }
 
-    .question-label { margin-bottom: 10px; display: block; }
+    .question-label { margin-bottom: 12px; display: block; }
 
-    input, textarea {
+    .gf-input, .gf-textarea {
       width: 100%;
       border: none;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid #dadce0;
       padding: 8px 0;
       outline: none;
     }
 
-    .rating-options {
-      display: flex;
-      gap: 10px;
-    }
-
+    .rating-options { display: flex; gap: 8px; }
     .radio-btn {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      border: 2px solid #ccc;
+      border: 2px solid #dadce0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -67,45 +65,53 @@
 
     input[type="radio"]:checked + .radio-btn {
       background: #7c4dff;
-      color: #fff;
+      color: white;
       border-color: #7c4dff;
     }
 
-    .btn {
+    .btn-record {
       padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      color: white;
+      margin-right: 10px;
+    }
+
+    .btn-start { background: #7c4dff; }
+    .btn-stop { background: red; display: none; }
+
+    .audio-player-wrap { display: none; margin-top: 10px; }
+
+    .transcript-box { display: none; margin-top: 10px; }
+
+    .btn-submit {
+      padding: 12px 28px;
       background: #7c4dff;
       color: white;
       border: none;
-      margin-top: 10px;
       cursor: pointer;
     }
-
-    .audio-player-wrap { margin-top: 10px; }
-    .transcript-box { margin-top: 15px; }
-
-    .error-msg { color: red; font-size: 12px; }
   </style>
 </head>
 
 <body>
 
-<div class="form-wrapper">
+<div class="form-wrapper" id="formWrapper">
 
   <div class="form-header">
     <h1 class="form-title">🏥 Patient Feedback Form</h1>
-    <p class="form-subtitle">We value your feedback</p>
+    <p class="form-subtitle">We value your feedback.</p>
   </div>
 
   <div class="card">
-    <input id="patientId" placeholder="Patient ID">
+    <input class="gf-input" id="patientId" placeholder="Patient ID"/>
   </div>
 
   <div class="card">
-    <input id="patientName" placeholder="Full Name">
+    <input class="gf-input" id="patientName" placeholder="Full Name"/>
   </div>
 
   <div class="card">
-    <p>Q1 Rating</p>
     <div class="rating-options">
       <label><input type="radio" name="q1" value="1"><span class="radio-btn">1</span></label>
       <label><input type="radio" name="q1" value="2"><span class="radio-btn">2</span></label>
@@ -116,103 +122,90 @@
   </div>
 
   <div class="card">
-    <p>Q2 Recommend?</p>
-    <div class="rating-options">
-      <label><input type="radio" name="q2" value="1"><span class="radio-btn">1</span></label>
-      <label><input type="radio" name="q2" value="2"><span class="radio-btn">2</span></label>
-      <label><input type="radio" name="q2" value="3"><span class="radio-btn">3</span></label>
-      <label><input type="radio" name="q2" value="4"><span class="radio-btn">4</span></label>
-      <label><input type="radio" name="q2" value="5"><span class="radio-btn">5</span></label>
-    </div>
+    <textarea class="gf-textarea" id="improvement"></textarea>
   </div>
 
   <div class="card">
-    <textarea id="improvement" placeholder="Suggestions"></textarea>
-  </div>
+    <button class="btn-record btn-start" id="btnStart">Start</button>
+    <button class="btn-record btn-stop" id="btnStop">Stop</button>
 
-  <div class="card">
-    <button class="btn" onclick="startRecording()">Start Recording</button>
-    <button class="btn" onclick="stopRecording()">Stop Recording</button>
-
-    <div class="audio-player-wrap">
+    <div class="audio-player-wrap" id="audioWrap">
       <audio id="audioPlayer" controls></audio>
     </div>
 
-    <div class="transcript-box">
+    <div class="transcript-box" id="transcriptBox">
       <p><b>Original:</b> <span id="originalText"></span></p>
       <p><b>Translation:</b> <span id="translatedText"></span></p>
     </div>
-
-    <p class="error-msg" id="errVoice"></p>
   </div>
 
-  <button class="btn" onclick="submitForm()">Submit</button>
+  <button class="btn-submit" id="submitBtn">Submit</button>
 
 </div>
 
 <script>
 const BACKEND = "https://hospitalfeedback-production.up.railway.app";
 
-let mediaRecorder, audioChunks = [], audioBlob;
-let originalText = "", translatedText = "", filename = "";
+let mediaRecorder, chunks = [];
+let original = "", translated = "", filename = "";
 
-async function startRecording() {
+document.getElementById("btnStart").onclick = async () => {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   mediaRecorder = new MediaRecorder(stream);
-  audioChunks = [];
+  chunks = [];
 
-  mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
 
   mediaRecorder.onstop = async () => {
-    audioBlob = new Blob(audioChunks);
-    document.getElementById("audioPlayer").src = URL.createObjectURL(audioBlob);
+    const blob = new Blob(chunks);
 
-    const formData = new FormData();
-    formData.append("file", audioBlob, "recording.webm");
+    document.getElementById("audioWrap").style.display = "block";
+    document.getElementById("audioPlayer").src = URL.createObjectURL(blob);
 
-    try {
-      const res = await fetch(`${BACKEND}/upload`, { method: "POST", body: formData });
-      const data = await res.json();
+    const fd = new FormData();
+    fd.append("file", blob, "recording.webm");
 
-      originalText = data.original_text;
-      translatedText = data.uk_translation;
-      filename = data.filename;
+    const res = await fetch(`${BACKEND}/upload`, { method: "POST", body: fd });
+    const data = await res.json();
 
-      document.getElementById("originalText").innerText = originalText;
-      document.getElementById("translatedText").innerText = translatedText;
+    original = data.original_text;
+    translated = data.uk_translation;
+    filename = data.filename;
 
-    } catch (e) {
-      document.getElementById("errVoice").innerText = "Upload failed";
-    }
+    document.getElementById("transcriptBox").style.display = "block";
+    document.getElementById("originalText").innerText = original;
+    document.getElementById("translatedText").innerText = translated;
   };
 
   mediaRecorder.start();
-}
+  btnStart.style.display = "none";
+  btnStop.style.display = "inline";
+};
 
-function stopRecording() {
+document.getElementById("btnStop").onclick = () => {
   mediaRecorder.stop();
-}
+  btnStop.style.display = "none";
+  btnStart.style.display = "inline";
+};
 
-async function submitForm() {
-  const payload = {
-    patient_id: document.getElementById("patientId").value,
-    name: document.getElementById("patientName").value,
-    q1_rating: document.querySelector('input[name="q1"]:checked')?.value,
-    q2_recommendation: document.querySelector('input[name="q2"]:checked')?.value,
-    q3_improvement: document.getElementById("improvement").value,
-    original_text: originalText,
-    uk_translation: translatedText,
-    audio_filename: filename
-  };
-
+document.getElementById("submitBtn").onclick = async () => {
   await fetch(`${BACKEND}/submit`, {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(payload)
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      patient_id: document.getElementById("patientId").value,
+      name: document.getElementById("patientName").value,
+      q1_rating: document.querySelector('input[name="q1"]:checked')?.value,
+      q2_recommendation: "",
+      q3_improvement: document.getElementById("improvement").value,
+      original_text: original,
+      uk_translation: translated,
+      audio_filename: filename
+    })
   });
 
   alert("Submitted!");
-}
+};
 </script>
 
 </body>
