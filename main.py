@@ -118,3 +118,6 @@ async def submit(data: Submission):
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"status": "success"}
+@app.get("/")
+def root():
+    return {"status": "API running 🚀"}
